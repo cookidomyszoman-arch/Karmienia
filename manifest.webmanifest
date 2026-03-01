@@ -1,14 +1,19 @@
 {
-  "name": "Karmienia – prywatny dziennik",
-  "short_name": "Karmienia",
+  "name": "Antek – mniam mniam",
+  "short_name": "Antek",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#0f0f10",
   "theme_color": "#111111",
   "icons": [
     {
-      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAAK0lEQVR4nO3BMQEAAADCoPVPbQ0PoAAAAAAAAAAAAAAAAAAAAAAA4GkKxAABzVY0WQAAAABJRU5ErkJggg==",
+      "src": "icon-192.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
