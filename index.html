@@ -7,42 +7,104 @@
   <link rel="manifest" href="manifest.webmanifest">
   <meta name="theme-color" content="#111111" />
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background:#0f0f10; color:#f2f2f2; }
-    header { padding: 14px 16px; background:#161617; position: sticky; top:0; border-bottom:1px solid #252527; }
+    :root{
+      --bg:#0f0f10;
+      --card:#161617;
+      --line:#252527;
+      --muted:#b9b9c0;
+      --txt:#f2f2f2;
+      --btn:#101011;
+      --btnline:#2a2a2d;
+      --primary:#2b2bff;
+      --danger:#ff3b30;
+      --ok:#8ef0a5;
+    }
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background:var(--bg); color:var(--txt); }
+    header { padding: 14px 16px; background:var(--card); position: sticky; top:0; border-bottom:1px solid var(--line); z-index:10; }
     h1 { font-size: 16px; margin:0; }
-    main { padding: 14px 16px 24px; max-width: 720px; margin: 0 auto; }
-    .card { background:#161617; border:1px solid #252527; border-radius: 14px; padding: 12px; margin: 12px 0; }
+    main { padding: 14px 16px 24px; max-width: 820px; margin: 0 auto; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius: 16px; padding: 12px; margin: 12px 0; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
     .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .split { display:flex; gap:12px; flex-wrap:wrap; }
+    .split > .card { flex: 1 1 320px; margin: 0; }
     button, input, textarea, select {
-      border-radius: 12px; border:1px solid #2a2a2d; background:#101011; color:#f2f2f2;
+      border-radius: 14px; border:1px solid var(--btnline); background:var(--btn); color:var(--txt);
       padding: 10px 12px; font-size: 14px;
     }
     button { cursor:pointer; }
-    button.primary { background:#2b2bff; border-color:#2b2bff; }
-    button.danger { background:#ff3b30; border-color:#ff3b30; }
+    button.primary { background:var(--primary); border-color:var(--primary); }
+    button.danger { background:var(--danger); border-color:var(--danger); }
     button.ghost { background:transparent; }
-    .pill { padding: 6px 10px; border-radius: 999px; border:1px solid #2a2a2d; background:#101011; }
-    .muted { color:#b9b9c0; font-size: 12px; }
+    .pill { padding: 6px 10px; border-radius: 999px; border:1px solid var(--btnline); background:var(--btn); }
+    .muted { color:var(--muted); font-size: 12px; }
     textarea { width: 100%; min-height: 68px; resize: vertical; }
     input[type="number"]{ width: 120px; }
-    .history-item { border-top:1px dashed #2a2a2d; padding: 10px 0; }
+    input[type="time"]{ width: 140px; }
+    .history-item { border-top:1px dashed var(--btnline); padding: 10px 0; }
     .history-item:first-child { border-top:none; }
-    .tag { display:inline-block; padding:4px 8px; border-radius:999px; border:1px solid #2a2a2d; margin-right:6px; font-size:12px; }
-    .ok { color:#8ef0a5; }
+    .tag { display:inline-block; padding:4px 10px; border-radius:999px; border:1px solid var(--btnline); margin-right:6px; font-size:12px; }
+    .ok { color:var(--ok); }
+    .kpi-grid{
+      display:grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap:10px;
+      margin-top:10px;
+    }
+    .kpi{
+      border:1px solid var(--btnline);
+      border-radius: 14px;
+      padding:10px;
+      background: rgba(0,0,0,.12);
+    }
+    .kpi .v{ font-size: 18px; font-weight: 900; margin-top:2px; }
+    .kpi .l{ font-size: 12px; color: var(--muted); }
+    .section-title{ font-weight:900; margin-bottom: 6px; }
+    .small{ font-size:12px; color:var(--muted); }
+    .right { margin-left:auto; }
+    details summary{ cursor:pointer; user-select:none; }
   </style>
 </head>
 <body>
 <header>
   <h1>Karmienia – prywatny dziennik</h1>
-  <div class="muted">Dane tylko w tym telefonie (offline). Eksport CSV opcjonalnie.</div>
+  <div class="muted">Dane tylko w tym telefonie (offline). Podsumowania odświeżają się automatycznie.</div>
 </header>
 
 <main>
+
+  <!-- PODSUMOWANIA -->
+  <div class="split">
+    <div class="card">
+      <div class="section-title">Ostatnie 24h</div>
+      <div class="muted" id="last24Hint"></div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="l">Dokarmianie</div><div class="v" id="last24Ml">0 ml</div></div>
+        <div class="kpi"><div class="l">Karmienia</div><div class="v" id="last24Feeds">0</div></div>
+        <div class="kpi"><div class="l">Czas karmień</div><div class="v" id="last24Time">0m</div></div>
+        <div class="kpi"><div class="l">Kupki</div><div class="v" id="last24Poops">0</div></div>
+        <div class="kpi"><div class="l">Siku</div><div class="v" id="last24Pees">0</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">Dzisiaj od 00:00</div>
+      <div class="muted" id="todayHint"></div>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="l">Dokarmianie</div><div class="v" id="todayMl">0 ml</div></div>
+        <div class="kpi"><div class="l">Karmienia</div><div class="v" id="todayFeeds">0</div></div>
+        <div class="kpi"><div class="l">Czas karmień</div><div class="v" id="todayTime">0m</div></div>
+        <div class="kpi"><div class="l">Kupki</div><div class="v" id="todayPoops">0</div></div>
+        <div class="kpi"><div class="l">Siku</div><div class="v" id="todayPees">0</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SESJA + SZYBKIE WPISY -->
   <div class="card">
     <div class="row" style="justify-content:space-between;">
       <div>
         <div class="muted">Sesja karmienia</div>
-        <div id="timer" style="font-size:24px; font-weight:700;">00:00</div>
+        <div id="timer" style="font-size:28px; font-weight:900;">00:00</div>
         <div class="muted" id="sessionState">Nie nagrywa</div>
       </div>
       <div class="row">
@@ -56,7 +118,7 @@
     </div>
 
     <div style="margin-top:10px;">
-      <div class="muted">Uwagi do wpisu (opcjonalnie)</div>
+      <div class="muted">Uwagi (opcjonalnie)</div>
       <textarea id="note" placeholder="np. senne, słabo ssało, odbiło się, itd."></textarea>
     </div>
 
@@ -66,16 +128,38 @@
       <span class="pill">Dokarmianie (ml):</span>
       <input id="ml" type="number" min="0" step="1" placeholder="ml" />
       <button id="addMl">Dodaj</button>
+      <span class="right small" id="autoUpdate">Odświeżanie…</span>
     </div>
+
+    <details style="margin-top:12px;">
+      <summary class="pill">Ręczne dodanie karmienia (gdy zapomnieliście Start)</summary>
+      <div style="margin-top:10px;">
+        <div class="row">
+          <select id="manualBreast">
+            <option value="L">Lewa (L)</option>
+            <option value="P">Prawa (P)</option>
+            <option value="L+P">Obie (L+P)</option>
+          </select>
+          <span class="pill">Czas (min):</span>
+          <input id="manualMin" type="number" min="1" step="1" placeholder="min" />
+          <span class="pill">Godzina (opcjonalnie):</span>
+          <input id="manualTime" type="time" />
+          <button id="manualAdd" class="primary">Dodaj karmienie</button>
+        </div>
+        <div class="muted">Jeśli ustawisz godzinę, wpis zostanie zapisany „dzisiaj o tej godzinie”. Jeśli nie — zapisze się z aktualnym czasem.</div>
+      </div>
+    </details>
   </div>
 
+  <!-- HISTORIA -->
   <div class="card">
     <div class="row" style="justify-content:space-between;">
       <div>
-        <div style="font-weight:700;">Historia</div>
+        <div style="font-weight:900;">Ostatnie rejestracje</div>
         <div class="muted" id="countInfo"></div>
       </div>
       <div class="row">
+        <button id="toggleAll" class="ghost">Pokaż wszystkie</button>
         <button id="export" class="ghost">Eksport CSV</button>
         <button id="wipe" class="danger">Wyczyść wszystko</button>
       </div>
@@ -83,33 +167,36 @@
     <div id="history"></div>
   </div>
 
-  <div class="muted">Tip: po instalacji działa offline. Jeśli zmienisz telefon, użyj „Eksport CSV”.</div>
+  <div class="muted">Tip: po instalacji działa offline. Jeśli kiedyś zmienisz telefon — użyj „Eksport CSV”.</div>
 </main>
 
 <script>
-  // --- storage ---
-  const KEY = "karmienia_entries_v1";
-  const load = () => {
-    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
-    catch { return []; }
-  };
+  const KEY = "karmienia_entries_v2";
+  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } };
   const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
 
-  // --- helpers ---
   const pad = (n) => String(n).padStart(2,"0");
-  const fmtTime = (ms) => {
-    const s = Math.floor(ms/1000);
-    const m = Math.floor(s/60);
-    const ss = s%60;
-    return `${pad(m)}:${pad(ss)}`;
+  const fmtHM = (ms) => {
+    const s = Math.max(0, Math.floor(ms/1000));
+    const h = Math.floor(s/3600);
+    const m = Math.floor((s%3600)/60);
+    return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
   const nowIso = () => new Date().toISOString();
   const localStamp = (iso) => {
     const d = new Date(iso);
     return d.toLocaleString(undefined, { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
   };
+  const startOfToday = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+  const isoFromTodayTime = (hhmm) => {
+    const [hh, mm] = (hhmm || "").split(":").map(Number);
+    if (!Number.isFinite(hh) || !Number.isFinite(mm)) return null;
+    const d = startOfToday();
+    d.setHours(hh, mm, 0, 0);
+    return d.toISOString();
+  };
 
-  // --- state for session timer ---
+  // session timer
   let running = false;
   let t0 = 0;
   let tickId = null;
@@ -120,46 +207,20 @@
   const breastSel = document.getElementById("breast");
   const noteEl = document.getElementById("note");
 
-  function renderHistory() {
-    const entries = load().sort((a,b)=> b.ts.localeCompare(a.ts));
-    const h = document.getElementById("history");
-    const info = document.getElementById("countInfo");
-    info.textContent = `Wpisów: ${entries.length}`;
-    if (!entries.length) { h.innerHTML = `<div class="muted" style="margin-top:10px;">Brak wpisów.</div>`; return; }
-
-    h.innerHTML = entries.map(e => {
-      const tags = [];
-      if (e.type === "feed") tags.push(`<span class="tag">Karmienie</span> <span class="tag">${e.breast}</span> <span class="tag ok">${fmtTime(e.durationMs)}</span>`);
-      if (e.type === "ml") tags.push(`<span class="tag">Dokarmianie</span> <span class="tag ok">${e.ml} ml</span>`);
-      if (e.type === "pee") tags.push(`<span class="tag">Siku</span>`);
-      if (e.type === "poop") tags.push(`<span class="tag">Kupka</span>`);
-
-      const note = (e.note || "").trim();
-      return `
-        <div class="history-item">
-          <div class="muted">${localStamp(e.ts)}</div>
-          <div style="margin:6px 0;">${tags.join(" ")}</div>
-          ${note ? `<div>${note.replaceAll("<","&lt;").replaceAll(">","&gt;")}</div>` : `<div class="muted">—</div>`}
-          <div style="margin-top:8px;">
-            <button class="ghost" onclick="delEntry('${e.id}')">Usuń</button>
-          </div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  window.delEntry = (id) => {
-    const arr = load().filter(x => x.id !== id);
-    save(arr);
-    renderHistory();
-  };
+  let showAll = false;
 
   function addEntry(entry) {
     const arr = load();
     arr.push(entry);
     save(arr);
-    renderHistory();
+    renderAll();
   }
+
+  window.delEntry = (id) => {
+    const arr = load().filter(x => x.id !== id);
+    save(arr);
+    renderAll();
+  };
 
   function startTimer() {
     running = true;
@@ -168,7 +229,9 @@
     startStopBtn.textContent = "Stop";
     timerEl.textContent = "00:00";
     tickId = setInterval(() => {
-      timerEl.textContent = fmtTime(Date.now() - t0);
+      const ms = Date.now() - t0;
+      const s = Math.floor(ms/1000), m = Math.floor(s/60), ss = s%60;
+      timerEl.textContent = `${pad(m)}:${pad(ss)}`;
     }, 250);
   }
 
@@ -176,6 +239,7 @@
     running = false;
     clearInterval(tickId);
     tickId = null;
+
     const dur = Date.now() - t0;
     sessionStateEl.textContent = "Zapisano";
     startStopBtn.textContent = "Start";
@@ -190,13 +254,11 @@
       note: noteEl.value || ""
     });
 
-    // czyścimy notatkę po zapisaniu karmienia (żeby nie wpadała przypadkiem do pieluch)
     noteEl.value = "";
   }
 
   startStopBtn.addEventListener("click", () => {
-    if (!running) startTimer();
-    else stopTimerAndSave();
+    if (!running) startTimer(); else stopTimerAndSave();
   });
 
   document.getElementById("pee").addEventListener("click", () => {
@@ -217,10 +279,38 @@
     noteEl.value = "";
   });
 
+  document.getElementById("manualAdd").addEventListener("click", () => {
+    const b = document.getElementById("manualBreast").value;
+    const mins = Number(document.getElementById("manualMin").value);
+    if (!Number.isFinite(mins) || mins <= 0) { alert("Wpisz czas w minutach (>0)."); return; }
+
+    const hhmm = document.getElementById("manualTime").value;
+    const ts = hhmm ? (isoFromTodayTime(hhmm) || nowIso()) : nowIso();
+
+    addEntry({
+      id: crypto.randomUUID(),
+      ts,
+      type: "feed",
+      breast: b,
+      durationMs: Math.round(mins * 60 * 1000),
+      note: noteEl.value || ""
+    });
+
+    document.getElementById("manualMin").value = "";
+    document.getElementById("manualTime").value = "";
+    noteEl.value = "";
+  });
+
+  document.getElementById("toggleAll").addEventListener("click", () => {
+    showAll = !showAll;
+    document.getElementById("toggleAll").textContent = showAll ? "Pokaż tylko 10" : "Pokaż wszystkie";
+    renderHistory();
+  });
+
   document.getElementById("wipe").addEventListener("click", () => {
     if (!confirm("Na pewno usunąć wszystkie wpisy z tego telefonu?")) return;
     localStorage.removeItem(KEY);
-    renderHistory();
+    renderAll();
   });
 
   document.getElementById("export").addEventListener("click", () => {
@@ -248,12 +338,98 @@
     setTimeout(()=>URL.revokeObjectURL(url), 2000);
   });
 
-  // PWA: service worker
+  function computeStats(entries, fromMs, toMs) {
+    let ml = 0, feeds = 0, feedMs = 0, poops = 0, pees = 0;
+    for (const e of entries) {
+      const t = new Date(e.ts).getTime();
+      if (t < fromMs || t > toMs) continue;
+      if (e.type === "ml") ml += Number(e.ml || 0);
+      if (e.type === "feed") { feeds += 1; feedMs += Number(e.durationMs || 0); }
+      if (e.type === "poop") poops += 1;
+      if (e.type === "pee") pees += 1;
+    }
+    return { ml: Math.round(ml), feeds, feedMs, poops, pees };
+  }
+
+  function renderSummaries() {
+    const entries = load();
+    const now = Date.now();
+    const from24 = now - 24*60*60*1000;
+    const today0 = startOfToday().getTime();
+
+    const s24 = computeStats(entries, from24, now);
+    const st  = computeStats(entries, today0, now);
+
+    document.getElementById("last24Ml").textContent = `${s24.ml} ml`;
+    document.getElementById("last24Feeds").textContent = `${s24.feeds}`;
+    document.getElementById("last24Time").textContent = `${fmtHM(s24.feedMs)}`;
+    document.getElementById("last24Poops").textContent = `${s24.poops}`;
+    document.getElementById("last24Pees").textContent = `${s24.pees}`;
+
+    document.getElementById("todayMl").textContent = `${st.ml} ml`;
+    document.getElementById("todayFeeds").textContent = `${st.feeds}`;
+    document.getElementById("todayTime").textContent = `${fmtHM(st.feedMs)}`;
+    document.getElementById("todayPoops").textContent = `${st.poops}`;
+    document.getElementById("todayPees").textContent = `${st.pees}`;
+
+    document.getElementById("last24Hint").textContent =
+      `Zakres: ${new Date(from24).toLocaleString(undefined,{hour:"2-digit",minute:"2-digit",day:"2-digit",month:"2-digit"})} → teraz`;
+    document.getElementById("todayHint").textContent = `Zakres: 00:00 → teraz`;
+  }
+
+  function renderHistory() {
+    const entries = load().sort((a,b)=> b.ts.localeCompare(a.ts));
+    const h = document.getElementById("history");
+    const info = document.getElementById("countInfo");
+    info.textContent = `Wpisów: ${entries.length} • widok: ${showAll ? "wszystkie" : "ostatnie 10"}`;
+
+    const visible = showAll ? entries : entries.slice(0, 10);
+
+    if (!visible.length) {
+      h.innerHTML = `<div class="muted" style="margin-top:10px;">Brak wpisów.</div>`;
+      return;
+    }
+
+    h.innerHTML = visible.map(e => {
+      const tags = [];
+      if (e.type === "feed") tags.push(`<span class="tag">Karmienie</span> <span class="tag">${e.breast}</span> <span class="tag ok">${fmtHM(e.durationMs)}</span>`);
+      if (e.type === "ml") tags.push(`<span class="tag">Dokarmianie</span> <span class="tag ok">${e.ml} ml</span>`);
+      if (e.type === "pee") tags.push(`<span class="tag">Siku</span>`);
+      if (e.type === "poop") tags.push(`<span class="tag">Kupka</span>`);
+
+      const note = (e.note || "").trim();
+      return `
+        <div class="history-item">
+          <div class="muted">${localStamp(e.ts)}</div>
+          <div style="margin:6px 0;">${tags.join(" ")}</div>
+          ${note ? `<div>${note.replaceAll("<","&lt;").replaceAll(">","&gt;")}</div>` : `<div class="muted">—</div>`}
+          <div style="margin-top:8px;">
+            <button class="ghost" onclick="delEntry('${e.id}')">Usuń</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function renderAll(){ renderSummaries(); renderHistory(); }
+
+  function startAutoRefresh() {
+    const el = document.getElementById("autoUpdate");
+    const tick = () => {
+      renderSummaries();
+      const d = new Date();
+      el.textContent = `Aktualizacja: ${d.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit"})}`;
+    };
+    tick();
+    setInterval(tick, 30_000);
+  }
+
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("./sw.js").catch(()=>{});
   }
 
-  renderHistory();
+  renderAll();
+  startAutoRefresh();
 </script>
 </body>
 </html>
