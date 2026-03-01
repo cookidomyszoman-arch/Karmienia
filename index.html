@@ -1,0 +1,1367 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Antek – mniam mniam</title>
+  <meta name="theme-color" content="#0a0a0f" />
+
+  <!-- PWA (GitHub Pages /Karmienia/) -->
+  <link rel="manifest" href="/Karmienia/manifest.webmanifest">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #07070c;
+      --surface: #0e0e16;
+      --surface2: #13131d;
+      --surface3: #181824;
+      --border: rgba(255,255,255,0.07);
+      --border-bright: rgba(255,255,255,0.13);
+      --muted: #6b6b85;
+      --muted2: #9999b5;
+      --txt: #eeeef5;
+      --txt2: #c5c5d8;
+      --accent: #7b6ef6;
+      --accent2: #a78bfa;
+      --accent-glow: rgba(123,110,246,0.25);
+      --pink: #f472b6;
+      --pink-glow: rgba(244,114,182,0.2);
+      --green: #4ade80;
+      --green-glow: rgba(74,222,128,0.18);
+      --amber: #fbbf24;
+      --r: 20px;
+      --r2: 14px;
+      --r3: 10px;
+      --shadow: 0 20px 60px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.3);
+      --shadow-sm: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--txt);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 20% 10%, rgba(123,110,246,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 30% at 80% 80%, rgba(244,114,182,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 30% 25% at 60% 30%, rgba(74,222,128,0.05) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 0 20px;
+      background: rgba(7,7,12,0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--accent), var(--pink));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 0 20px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .logo-text { display: flex; flex-direction: column; }
+    .logo-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 17px;
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--txt), var(--muted2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .logo-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+      font-weight: 400;
+      letter-spacing: 0.3px;
+    }
+
+    .header-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      font-size: 11px;
+      color: var(--muted2);
+      font-family: 'DM Mono', monospace;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: var(--green);
+      animation: pulse-dot 2s ease infinite;
+      box-shadow: 0 0 8px var(--green-glow);
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+    }
+
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r2);
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-card-label .badge {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-purple { background: rgba(123,110,246,0.15); color: var(--accent2); border: 1px solid rgba(123,110,246,0.25); }
+    .badge-pink { background: rgba(244,114,182,0.12); color: var(--pink); border: 1px solid rgba(244,114,182,0.2); }
+
+    .kpis { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+    .kpi {
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      border-radius: var(--r3);
+      padding: 12px;
+    }
+    .kpi .kl { font-size: 11px; color: var(--muted); font-weight: 500; margin-bottom: 4px; }
+    .kpi .kv { font-size: 22px; font-weight: 700; line-height: 1; font-family: 'DM Mono', monospace; color: var(--txt); }
+    .kpi .kv span { font-size: 13px; font-weight: 500; color: var(--muted2); }
+
+    .timer-section { display: grid; grid-template-columns: 1fr auto; gap: 20px; align-items: start; }
+    @media (max-width: 600px) { .timer-section { grid-template-columns: 1fr; } }
+
+    .timer-display {
+      font-family: 'DM Mono', monospace;
+      font-size: 64px;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: -2px;
+      color: var(--txt);
+      transition: color 0.3s;
+    }
+    .timer-display.running { color: var(--accent2); text-shadow: 0 0 40px var(--accent-glow); }
+
+    .timer-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--muted);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+    .status-dot.active {
+      background: var(--green);
+      box-shadow: 0 0 10px var(--green-glow);
+      animation: pulse-dot 1.5s ease infinite;
+    }
+
+    .breast-select-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+    .breast-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid var(--border-bright);
+      background: transparent;
+      color: var(--muted2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .breast-btn.active, .breast-btn:hover {
+      background: rgba(123,110,246,0.15);
+      border-color: rgba(123,110,246,0.4);
+      color: var(--accent2);
+    }
+
+    .btn-start {
+      width: 100%;
+      padding: 18px 24px;
+      border-radius: 18px;
+      border: none;
+      background: linear-gradient(135deg, #6d5ce7, #9c53d1);
+      color: #fff;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(109,92,231,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.2px;
+      margin-top: 16px;
+    }
+    .btn-start:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 40px rgba(109,92,231,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+    .btn-start.running {
+      background: linear-gradient(135deg, #ff3b6e, #e8184d);
+      box-shadow: 0 8px 30px rgba(255,59,110,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
+    }
+    .btn-start.running:hover {
+      box-shadow: 0 12px 40px rgba(255,59,110,0.45), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .btn-quick {
+      padding: 14px 12px;
+      border-radius: 14px;
+      border: 1px solid var(--border-bright);
+      background: var(--surface2);
+      color: var(--txt2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-quick:hover {
+      background: var(--surface3);
+      border-color: var(--border-bright);
+      transform: translateY(-1px);
+    }
+    .btn-quick.pee:hover { border-color: rgba(251,191,36,0.4); color: var(--amber); }
+    .btn-quick.poop:hover { border-color: rgba(123,110,246,0.4); color: var(--accent2); }
+
+    .ml-row { display: flex; gap: 8px; margin-top: 12px; align-items: center; }
+    .ml-row input {
+      flex: 1;
+      min-width: 0;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-bright);
+      background: rgba(0,0,0,0.3);
+      color: var(--txt);
+      font-family: 'DM Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .ml-row input:focus { border-color: rgba(123,110,246,0.5); }
+    .ml-row input::placeholder { color: var(--muted); }
+
+    .btn-ml {
+      padding: 13px 20px;
+      border-radius: 14px;
+      border: 1px solid rgba(74,222,128,0.3);
+      background: rgba(74,222,128,0.1);
+      color: var(--green);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .btn-ml:hover { background: rgba(74,222,128,0.18); transform: translateY(-1px); }
+
+    .note-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      margin-top: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 72px;
+      padding: 13px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border-bright);
+      background: rgba(0,0,0,0.25);
+      color: var(--txt2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.5;
+    }
+    textarea:focus { border-color: rgba(123,110,246,0.4); }
+    textarea::placeholder { color: var(--muted); }
+
+    .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--txt);
+    }
+    .section-sub { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 400; }
+
+    .chart-container { margin-top: 14px; }
+    .chart-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 180px;
+      display: block;
+      border-radius: 14px;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+    }
+
+    .history-item {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: start;
+      animation: slide-in 0.25s ease;
+    }
+    .history-item:last-child { border-bottom: none; }
+
+    @keyframes slide-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .history-ts {
+      font-size: 11px;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-weight: 400;
+      margin-bottom: 6px;
+    }
+
+    .history-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 5px; }
+
+    .tag {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+
+    .tag-default { background: rgba(255,255,255,0.05); color: var(--muted2); border-color: var(--border-bright); }
+    .tag-feed { background: rgba(123,110,246,0.12); color: var(--accent2); border-color: rgba(123,110,246,0.25); }
+    .tag-duration { background: rgba(74,222,128,0.1); color: var(--green); border-color: rgba(74,222,128,0.2); }
+    .tag-ml { background: rgba(251,191,36,0.1); color: var(--amber); border-color: rgba(251,191,36,0.2); }
+    .tag-pee { background: rgba(251,191,36,0.08); color: #f5c842; border-color: rgba(251,191,36,0.15); }
+    .tag-poop { background: rgba(139,92,246,0.1); color: #c084fc; border-color: rgba(139,92,246,0.2); }
+
+    .history-note {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+      margin-top: 2px;
+    }
+
+    .btn-del {
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .btn-del:hover { border-color: rgba(255,59,48,0.4); color: #ff4d4d; background: rgba(255,59,48,0.08); }
+
+    details { margin-top: 12px; }
+    details summary {
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px dashed rgba(255,255,255,0.1);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary:hover { border-color: rgba(255,255,255,0.18); color: var(--muted2); background: rgba(255,255,255,0.03); }
+
+    details[open] summary {
+      border-color: rgba(123,110,246,0.3);
+      color: var(--accent2);
+      background: rgba(123,110,246,0.06);
+      border-radius: 12px 12px 0 0;
+      border-bottom: none;
+    }
+
+    .manual-content {
+      padding: 16px;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-top: none;
+      border-radius: 0 0 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .manual-block {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .manual-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .field-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .field-label { font-size: 11px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+
+    .input-sm {
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-bright);
+      background: rgba(0,0,0,0.25);
+      color: var(--txt2);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.2s;
+      max-width: 110px;
+    }
+
+    .input-sm:focus { border-color: rgba(123,110,246,0.45); }
+    select.input-sm, select { font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; cursor: pointer; max-width: 160px; }
+
+    .btn-add-manual {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(123,110,246,0.3);
+      background: rgba(123,110,246,0.12);
+      color: var(--accent2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-add-manual:hover { background: rgba(123,110,246,0.22); transform: translateY(-1px); }
+
+    .btn-ghost {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border-bright);
+      background: transparent;
+      color: var(--muted2);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.05); color: var(--txt); }
+
+    .btn-danger {
+      padding: 8px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,59,48,0.3);
+      background: rgba(255,59,48,0.08);
+      color: #ff4d4d;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-danger:hover { background: rgba(255,59,48,0.16); }
+    .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
+    .empty-state .icon { font-size: 36px; margin-bottom: 10px; opacity: 0.5; }
+
+    @media (max-width: 520px) {
+      .timer-display { font-size: 48px; }
+      .btn-start { padding: 16px 20px; font-size: 15px; }
+      header { padding: 0 14px; }
+      .logo-title { font-size: 15px; }
+    }
+
+    .footnote { font-size: 11px; color: var(--muted); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    #breast { display: none; }
+    #manualBreast { max-width: 160px; }
+
+    .pill {
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border-bright);
+      font-size: 11px;
+      color: var(--muted2);
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap;
+    }
+
+    /* Import UI */
+    .import-help {
+      font-size: 12px;
+      color: var(--muted2);
+      line-height: 1.5;
+    }
+    .import-help code {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--txt2);
+      background: rgba(0,0,0,0.25);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 8px;
+    }
+    .import-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .btn-green {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(74,222,128,0.25);
+      background: rgba(74,222,128,0.10);
+      color: var(--green);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-green:hover { background: rgba(74,222,128,0.16); transform: translateY(-1px); }
+    .btn-warn {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid rgba(251,191,36,0.25);
+      background: rgba(251,191,36,0.08);
+      color: var(--amber);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-warn:hover { background: rgba(251,191,36,0.14); transform: translateY(-1px); }
+
+    .import-preview {
+      margin-top:10px;
+      font-family:'DM Mono', monospace;
+      font-size:11px;
+      color: var(--muted2);
+      background: rgba(0,0,0,0.22);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 240px;
+      overflow:auto;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">🍼</div>
+    <div class="logo-text">
+      <div class="logo-title">Antek</div>
+      <div class="logo-sub">Mniam mniam tracker</div>
+    </div>
+  </div>
+  <div class="header-badge">
+    <div class="live-dot"></div>
+    <span id="autoUpdate">Aktualizacja…</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="stats-grid">
+    <div class="card stat-card">
+      <div class="stat-card-label">
+        Ostatnie 24h <span class="badge badge-purple">24H</span>
+      </div>
+      <div id="last24Hint" style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:'DM Mono',monospace;"></div>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kl">Dokarmianie</div>
+          <div class="kv" id="last24Ml">0 <span>ml</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kl">Karmienia</div>
+          <div class="kv" id="last24Feeds">0</div>
+        </div>
+        <div class="kpi">
+          <div class="kl">Czas karmień</div>
+          <div class="kv" id="last24Time">0<span>m</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kl">💩 / 💧</div>
+          <div class="kv" id="last24Diapers">0 <span>/ 0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card stat-card">
+      <div class="stat-card-label">
+        Dzisiaj od 00:00 <span class="badge badge-pink">DZIŚ</span>
+      </div>
+      <div id="todayHint" style="font-size:11px;color:var(--muted);margin-bottom:10px;font-family:'DM Mono',monospace;"></div>
+      <div class="kpis">
+        <div class="kpi">
+          <div class="kl">Dokarmianie</div>
+          <div class="kv" id="todayMl">0 <span>ml</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kl">Karmienia</div>
+          <div class="kv" id="todayFeeds">0</div>
+        </div>
+        <div class="kpi">
+          <div class="kl">Czas karmień</div>
+          <div class="kv" id="todayTime">0<span>m</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kl">💩 / 💧</div>
+          <div class="kv" id="todayDiapers">0 <span>/ 0</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Rejestruj karmienie</div>
+        <div class="section-sub">Wybierz pierś i wciśnij Start</div>
+      </div>
+    </div>
+
+    <div class="breast-select-row">
+      <button class="breast-btn active" data-val="L">👈 Lewa</button>
+      <button class="breast-btn" data-val="P">Prawa 👉</button>
+      <button class="breast-btn" data-val="L+P">🤲 Obie</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="timer-section">
+      <div>
+        <div class="timer-display" id="timer">00:00</div>
+        <div class="timer-status">
+          <div class="status-dot" id="statusDot"></div>
+          <span id="sessionState">Gotowy do startu</span>
+        </div>
+      </div>
+    </div>
+
+    <button id="startStop" class="btn-start">
+      <span id="startStopIcon">▶</span>
+      <span id="startStopLabel">Start karmienia</span>
+    </button>
+
+    <div class="divider"></div>
+
+    <div class="quick-actions">
+      <button id="pee" class="btn-quick pee">💧 Siku</button>
+      <button id="poop" class="btn-quick poop">💩 Kupka</button>
+    </div>
+
+    <div class="ml-row">
+      <input id="ml" type="number" min="0" step="1" placeholder="Ilość w ml…" />
+      <button id="addMl" class="btn-ml">+ Dokarmianie</button>
+    </div>
+
+    <div class="note-label">Notatka (opcjonalnie)</div>
+    <textarea id="note" placeholder="np. senne, słabo ssało, odbiło się…"></textarea>
+
+    <details style="margin-top: 16px;">
+      <summary>🕐 Manualne wpisywanie (gdy zapomnieliście kliknąć)</summary>
+      <div class="manual-content">
+
+        <div class="manual-block">
+          <div class="manual-title">Manualne karmienie</div>
+          <div class="field-row">
+            <select id="manualBreast" class="input-sm">
+              <option value="L">👈 Lewa</option>
+              <option value="P">Prawa 👉</option>
+              <option value="L+P">🤲 Obie</option>
+            </select>
+            <span class="field-label">Czas:</span>
+            <input id="manualMin" class="input-sm" type="number" min="1" step="1" placeholder="min" />
+            <span class="field-label">Godzina:</span>
+            <input id="manualTime" class="input-sm" type="time" style="max-width: 110px;" />
+            <button id="manualAdd" class="btn-add-manual">Dodaj</button>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-top:8px;">Godzina opcjonalna – domyślnie teraz.</div>
+        </div>
+
+        <div class="manual-block">
+          <div class="manual-title">Manualna pielucha</div>
+          <div class="field-row">
+            <select id="manualType" class="input-sm" style="max-width:120px;">
+              <option value="pee">💧 Siku</option>
+              <option value="poop">💩 Kupka</option>
+            </select>
+            <span class="field-label">Godzina:</span>
+            <input id="manualDiaperTime" class="input-sm" type="time" style="max-width: 110px;" />
+            <select id="manualAmount" class="input-sm">
+              <option value="">— ilość —</option>
+              <option value="malo">Mało</option>
+              <option value="srednio">Średnio</option>
+              <option value="duzo">Dużo</option>
+            </select>
+            <button id="manualDiaperAdd" class="btn-add-manual">Dodaj</button>
+          </div>
+        </div>
+
+      </div>
+    </details>
+  </div>
+
+  <!-- NEW: Import initial data (midnight -> app start) -->
+  <div class="card">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Import danych początkowych</div>
+        <div class="section-sub">Wpisy od północy do momentu uruchomienia aplikacji.</div>
+      </div>
+      <div class="pill" id="importState">gotowe</div>
+    </div>
+
+    <div class="import-help">
+      Wklej tekst (CSV/linijki) albo JSON. Najprościej: jedna linia = jeden wpis w formacie:
+      <br><br>
+      <code>HH:MM;typ;wartość;pierś;opcjonalnie:ilość;notatka</code>
+      <br><br>
+      typ: <code>feed</code> / <code>ml</code> / <code>pee</code> / <code>poop</code><br>
+      wartość: dla <code>feed</code> = minuty, dla <code>ml</code> = ml, dla pieluch może być puste.<br>
+      pierś: <code>L</code> / <code>P</code> / <code>L+P</code> (tylko dla feed).<br>
+      ilość: <code>malo/srednio/duzo</code> (opcjonalnie dla pee/poop).<br><br>
+      Przykład:
+      <br>
+      <code>00:35;feed;18;L;;senne</code><br>
+      <code>01:10;ml;30;;;SNF</code><br>
+      <code>01:22;pee;;;malo;</code><br>
+      <code>02:05;poop;;;;żółta</code>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field-row">
+      <span class="field-label">Data:</span>
+      <input id="importDate" class="input-sm" type="date" style="max-width: 160px;">
+      <span class="field-label">Strefa:</span>
+      <span class="pill">lokalna (telefon)</span>
+    </div>
+
+    <div class="note-label">Dane do importu</div>
+    <textarea id="importText" placeholder="Wklej linie lub JSON..."></textarea>
+
+    <div class="import-actions">
+      <button id="btnPreviewImport" class="btn-warn">Podgląd</button>
+      <button id="btnDoImport" class="btn-green">Importuj</button>
+      <button id="btnClearImport" class="btn-ghost">Wyczyść</button>
+    </div>
+
+    <div id="importPreview" class="import-preview" style="display:none;"></div>
+    <div class="footnote">Import nie usuwa istniejących wpisów — tylko dopisuje. Duplikaty trzeba usuwać ręcznie z Historii.</div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Ostatnie 7 dni</div>
+        <div class="section-sub">Statystyki dzienne, słupki per dzień.</div>
+      </div>
+      <div class="pill" id="chartsHint">—</div>
+    </div>
+
+    <div class="chart-container">
+      <div class="chart-label">Czas karmień (min / dzień)</div>
+      <canvas id="chartFeed"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-label">Dokarmianie (ml / dzień)</div>
+      <canvas id="chartMl"></canvas>
+    </div>
+    <div class="chart-container">
+      <div class="chart-label">Pieluchy łącznie (siku + kupki)</div>
+      <canvas id="chartDiaper"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-header">
+      <div>
+        <div class="section-title">Historia</div>
+        <div class="section-sub" id="countInfo"></div>
+      </div>
+      <div class="top-actions">
+        <button id="toggleAll" class="btn-ghost">Pokaż wszystkie</button>
+        <button id="export" class="btn-ghost">↓ CSV</button>
+        <button id="wipe" class="btn-danger">Wyczyść</button>
+      </div>
+    </div>
+
+    <div id="history"></div>
+    <div class="footnote">💡 Kliknij „Usuń" obok wpisu, jeśli coś zostało dodane przez pomyłkę.</div>
+  </div>
+
+</main>
+
+<select id="breast" style="display:none">
+  <option value="L">L</option>
+  <option value="P">P</option>
+  <option value="L+P">L+P</option>
+</select>
+
+<script>
+/* PWA registration (real files) */
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/Karmienia/sw.js", { scope: "/Karmienia/" }).catch(()=>{});
+}
+
+/* === App Logic === */
+const KEY = "karmienia_entries_v2";
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; } };
+const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
+
+const pad = (n) => String(n).padStart(2,"0");
+const nowIso = () => new Date().toISOString();
+const localStamp = (iso) => {
+  const d = new Date(iso);
+  return d.toLocaleString("pl-PL", { day:"2-digit", month:"2-digit", hour:"2-digit", minute:"2-digit" });
+};
+const startOfToday = () => { const d = new Date(); d.setHours(0,0,0,0); return d; };
+const isoFromDateAndTime = (yyyy_mm_dd, hhmm) => {
+  const [y,m,d] = (yyyy_mm_dd || "").split("-").map(Number);
+  const [hh,mm] = (hhmm || "").split(":").map(Number);
+  if (![y,m,d,hh,mm].every(Number.isFinite)) return null;
+  const dt = new Date();
+  dt.setFullYear(y, m-1, d);
+  dt.setHours(hh, mm, 0, 0);
+  return dt.toISOString();
+};
+const isoFromTodayTime = (hhmm) => {
+  const [hh, mm] = (hhmm || "").split(":").map(Number);
+  if (!Number.isFinite(hh) || !Number.isFinite(mm)) return null;
+  const d = startOfToday(); d.setHours(hh, mm, 0, 0); return d.toISOString();
+};
+const fmtHM = (ms) => {
+  const s = Math.max(0, Math.floor(ms/1000));
+  const h = Math.floor(s/3600); const m = Math.floor((s%3600)/60);
+  return h > 0 ? `${h}h ${m}m` : `${m}m`;
+};
+const fmtMMSS = (ms) => {
+  const s = Math.max(0, Math.floor(ms/1000));
+  return `${pad(Math.floor(s/60))}:${pad(s%60)}`;
+};
+
+let running = false, t0 = 0, tickId = null;
+let selectedBreast = "L";
+let showAll = false;
+
+/* Breast selector */
+document.querySelectorAll('.breast-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.breast-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    selectedBreast = btn.dataset.val;
+    document.getElementById('breast').value = selectedBreast;
+  });
+});
+
+function addEntry(entry) { const arr = load(); arr.push(entry); save(arr); renderAll(); }
+function addEntries(entries) { const arr = load(); arr.push(...entries); save(arr); renderAll(); }
+window.delEntry = (id) => { save(load().filter(x => x.id !== id)); renderAll(); };
+
+const timerEl = document.getElementById("timer");
+const sessionStateEl = document.getElementById("sessionState");
+const startStopBtn = document.getElementById("startStop");
+const statusDot = document.getElementById("statusDot");
+const startStopIcon = document.getElementById("startStopIcon");
+const startStopLabel = document.getElementById("startStopLabel");
+
+function startTimer() {
+  running = true; t0 = Date.now();
+  timerEl.classList.add('running');
+  statusDot.classList.add('active');
+  sessionStateEl.textContent = "Karmienie w toku…";
+  startStopBtn.classList.add('running');
+  startStopIcon.textContent = "■";
+  startStopLabel.textContent = "Stop karmienia";
+  tickId = setInterval(() => { timerEl.textContent = fmtMMSS(Date.now() - t0); }, 250);
+}
+
+function stopTimerAndSave() {
+  running = false;
+  const dur = Date.now() - t0;
+  clearInterval(tickId); tickId = null;
+  timerEl.classList.remove('running');
+  timerEl.textContent = "00:00";
+  statusDot.classList.remove('active');
+  sessionStateEl.textContent = "Zapisano ✓";
+  startStopBtn.classList.remove('running');
+  startStopIcon.textContent = "▶";
+  startStopLabel.textContent = "Start karmienia";
+  addEntry({ id: crypto.randomUUID(), ts: nowIso(), type: "feed", breast: selectedBreast, durationMs: dur, note: document.getElementById("note").value || "" });
+  document.getElementById("note").value = "";
+  setTimeout(() => { sessionStateEl.textContent = "Gotowy do startu"; }, 2500);
+}
+
+startStopBtn.addEventListener("click", () => { if (!running) startTimer(); else stopTimerAndSave(); });
+
+document.getElementById("pee").addEventListener("click", () => {
+  addEntry({ id: crypto.randomUUID(), ts: nowIso(), type: "pee", amount: "", note: document.getElementById("note").value || "" });
+  document.getElementById("note").value = "";
+});
+document.getElementById("poop").addEventListener("click", () => {
+  addEntry({ id: crypto.randomUUID(), ts: nowIso(), type: "poop", amount: "", note: document.getElementById("note").value || "" });
+  document.getElementById("note").value = "";
+});
+document.getElementById("addMl").addEventListener("click", () => {
+  const v = Number(document.getElementById("ml").value);
+  if (!Number.isFinite(v) || v <= 0) { alert("Wpisz ilość ml (liczba > 0)."); return; }
+  addEntry({ id: crypto.randomUUID(), ts: nowIso(), type: "ml", ml: Math.round(v), note: document.getElementById("note").value || "" });
+  document.getElementById("ml").value = ""; document.getElementById("note").value = "";
+});
+
+document.getElementById("manualAdd").addEventListener("click", () => {
+  const b = document.getElementById("manualBreast").value;
+  const mins = Number(document.getElementById("manualMin").value);
+  if (!Number.isFinite(mins) || mins <= 0) { alert("Wpisz czas w minutach (>0)."); return; }
+  const hhmm = document.getElementById("manualTime").value;
+  const ts = hhmm ? (isoFromTodayTime(hhmm) || nowIso()) : nowIso();
+  addEntry({ id: crypto.randomUUID(), ts, type:"feed", breast:b, durationMs: Math.round(mins*60*1000), note:"" });
+  document.getElementById("manualMin").value = ""; document.getElementById("manualTime").value = "";
+});
+
+document.getElementById("manualDiaperAdd").addEventListener("click", () => {
+  const type = document.getElementById("manualType").value;
+  const hhmm = document.getElementById("manualDiaperTime").value;
+  const ts = hhmm ? (isoFromTodayTime(hhmm) || nowIso()) : nowIso();
+  const amount = document.getElementById("manualAmount").value || "";
+  addEntry({ id: crypto.randomUUID(), ts, type, amount, note:"" });
+  document.getElementById("manualDiaperTime").value = ""; document.getElementById("manualAmount").value = "";
+});
+
+document.getElementById("toggleAll").addEventListener("click", () => {
+  showAll = !showAll;
+  document.getElementById("toggleAll").textContent = showAll ? "Pokaż tylko 10" : "Pokaż wszystkie";
+  renderHistory();
+});
+document.getElementById("wipe").addEventListener("click", () => {
+  if (!confirm("Usunąć wszystkie wpisy z tego urządzenia?")) return;
+  localStorage.removeItem(KEY); renderAll();
+});
+document.getElementById("export").addEventListener("click", () => {
+  const entries = load().sort((a,b)=>a.ts.localeCompare(b.ts));
+  const header = ["ts","type","breast","duration_sec","ml","amount","note"].join(",");
+  const rows = entries.map(e => {
+    const cols = [e.ts, e.type||"", e.breast||"", e.durationMs?Math.round(e.durationMs/1000):"", e.ml||"", e.amount||"", (e.note||"").replaceAll('"','""')];
+    return cols.map(c=>`"${String(c)}"`).join(",");
+  });
+  const blob = new Blob([[header,...rows].join("\n")],{type:"text/csv;charset=utf-8"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "antek_export.csv"; a.click();
+});
+
+/* --- Import initial data --- */
+const importDateEl = document.getElementById("importDate");
+const importTextEl = document.getElementById("importText");
+const importPreviewEl = document.getElementById("importPreview");
+const importStateEl = document.getElementById("importState");
+function setImportState(t){ importStateEl.textContent = t; }
+
+function normalizeType(t){
+  const x = (t||"").trim().toLowerCase();
+  if (["feed","karmienie"].includes(x)) return "feed";
+  if (["ml","dokarmianie"].includes(x)) return "ml";
+  if (["pee","siku","pipi"].includes(x)) return "pee";
+  if (["poop","kupka","kupa"].includes(x)) return "poop";
+  return "";
+}
+
+function parseImportText(text, dateStr){
+  text = (text||"").trim();
+  if (!text) return { entries: [], preview: "Brak danych." };
+
+  // Try JSON
+  if (text.startsWith("[") || text.startsWith("{")) {
+    try {
+      const obj = JSON.parse(text);
+      const arr = Array.isArray(obj) ? obj : (Array.isArray(obj.entries) ? obj.entries : []);
+      const out = [];
+      for (const it of arr){
+        const time = (it.time || it.hhmm || it.hh_mm || "").toString().slice(0,5);
+        const ts = isoFromDateAndTime(dateStr, time) || it.ts || it.iso || null;
+        const type = normalizeType(it.type);
+        if (!type || !ts) continue;
+
+        if (type === "feed") {
+          const mins = Number(it.minutes ?? it.min ?? it.value ?? 0);
+          if (!Number.isFinite(mins) || mins <= 0) continue;
+          const breast = (it.breast || "L").toString();
+          out.push({ id: crypto.randomUUID(), ts, type:"feed", breast, durationMs: Math.round(mins*60*1000), note: (it.note||"").toString() });
+        } else if (type === "ml") {
+          const ml = Number(it.ml ?? it.value ?? 0);
+          if (!Number.isFinite(ml) || ml <= 0) continue;
+          out.push({ id: crypto.randomUUID(), ts, type:"ml", ml: Math.round(ml), note: (it.note||"").toString() });
+        } else if (type === "pee" || type === "poop") {
+          const amount = (it.amount || it.size || "").toString();
+          out.push({ id: crypto.randomUUID(), ts, type, amount, note: (it.note||"").toString() });
+        }
+      }
+      return { entries: out, preview: "JSON: OK\nWpisy do dodania: " + out.length };
+    } catch (e) {
+      return { entries: [], preview: "JSON: błąd parsowania.\n" + String(e) };
+    }
+  }
+
+  // Parse line-based CSV with ; or , (prefer ;)
+  const lines = text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const out = [];
+  const errors = [];
+  for (let i=0;i<lines.length;i++){
+    const line = lines[i];
+    const parts = line.includes(";") ? line.split(";") : line.split(",");
+    const [hhmm, typ, val, breast, amount, note] = parts.map(x => (x ?? "").trim());
+    const type = normalizeType(typ);
+    const ts = isoFromDateAndTime(dateStr, hhmm);
+    if (!type || !ts) { errors.push(`linia ${i+1}: brak typ lub godzina (${line})`); continue; }
+
+    if (type === "feed") {
+      const mins = Number(val);
+      if (!Number.isFinite(mins) || mins <= 0) { errors.push(`linia ${i+1}: feed wymaga minut (${line})`); continue; }
+      out.push({ id: crypto.randomUUID(), ts, type:"feed", breast: breast || "L", durationMs: Math.round(mins*60*1000), note: note || "" });
+    } else if (type === "ml") {
+      const ml = Number(val);
+      if (!Number.isFinite(ml) || ml <= 0) { errors.push(`linia ${i+1}: ml wymaga liczby (${line})`); continue; }
+      out.push({ id: crypto.randomUUID(), ts, type:"ml", ml: Math.round(ml), note: note || "" });
+    } else if (type === "pee" || type === "poop") {
+      out.push({ id: crypto.randomUUID(), ts, type, amount: amount || "", note: note || "" });
+    }
+  }
+  const preview = [
+    `Linie: ${lines.length}`,
+    `Wpisy OK: ${out.length}`,
+    errors.length ? `Błędy (${errors.length}):\n- ` + errors.slice(0,8).join("\n- ") + (errors.length>8?`\n... +${errors.length-8} więcej`:"") : "Błędy: 0"
+  ].join("\n");
+  return { entries: out, preview };
+}
+
+function defaultImportDate(){
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth()+1).padStart(2,"0");
+  const dd = String(d.getDate()).padStart(2,"0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+importDateEl.value = defaultImportDate();
+
+document.getElementById("btnPreviewImport").addEventListener("click", () => {
+  const res = parseImportText(importTextEl.value, importDateEl.value);
+  importPreviewEl.style.display = "block";
+  importPreviewEl.textContent = res.preview;
+  setImportState(`podgląd: ${res.entries.length}`);
+});
+
+document.getElementById("btnDoImport").addEventListener("click", () => {
+  const res = parseImportText(importTextEl.value, importDateEl.value);
+  importPreviewEl.style.display = "block";
+  importPreviewEl.textContent = res.preview;
+  if (!res.entries.length) { setImportState("brak wpisów"); return; }
+  if (!confirm(`Dodać ${res.entries.length} wpisów do historii?`)) return;
+  addEntries(res.entries);
+  setImportState(`zaimportowano: ${res.entries.length}`);
+});
+
+document.getElementById("btnClearImport").addEventListener("click", () => {
+  importTextEl.value = "";
+  importPreviewEl.style.display = "none";
+  importPreviewEl.textContent = "";
+  setImportState("gotowe");
+});
+
+/* --- Stats & charts --- */
+function computeStats(entries, fromMs, toMs) {
+  let ml=0, feeds=0, feedMs=0, poops=0, pees=0;
+  for (const e of entries) {
+    const t = new Date(e.ts).getTime();
+    if (t < fromMs || t > toMs) continue;
+    if (e.type==="ml") ml += Number(e.ml||0);
+    if (e.type==="feed") { feeds++; feedMs += Number(e.durationMs||0); }
+    if (e.type==="poop") poops++;
+    if (e.type==="pee") pees++;
+  }
+  return { ml:Math.round(ml), feeds, feedMs, poops, pees };
+}
+
+function renderSummaries() {
+  const entries = load();
+  const now = Date.now();
+  const from24 = now - 24*60*60*1000;
+  const today0 = startOfToday().getTime();
+  const s24 = computeStats(entries, from24, now);
+  const st = computeStats(entries, today0, now);
+
+  const fmt = (v, unit) => `${v} <span>${unit}</span>`;
+  document.getElementById("last24Ml").innerHTML = fmt(s24.ml, "ml");
+  document.getElementById("last24Feeds").textContent = s24.feeds;
+  document.getElementById("last24Time").innerHTML = fmtHM(s24.feedMs).replace(/(\d+)(h|m)/g, '$1<span>$2</span>');
+  document.getElementById("last24Diapers").innerHTML = `${s24.poops} <span>/ ${s24.pees}</span>`;
+  document.getElementById("todayMl").innerHTML = fmt(st.ml, "ml");
+  document.getElementById("todayFeeds").textContent = st.feeds;
+  document.getElementById("todayTime").innerHTML = fmtHM(st.feedMs).replace(/(\d+)(h|m)/g, '$1<span>$2</span>');
+  document.getElementById("todayDiapers").innerHTML = `${st.poops} <span>/ ${st.pees}</span>`;
+
+  const d24 = new Date(from24);
+  document.getElementById("last24Hint").textContent = `${d24.toLocaleString("pl-PL",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})} → teraz`;
+  document.getElementById("todayHint").textContent = "Od 00:00 do teraz";
+}
+
+function renderHistory() {
+  const entries = load().sort((a,b)=>b.ts.localeCompare(a.ts));
+  const h = document.getElementById("history");
+  document.getElementById("countInfo").textContent = `Łącznie ${entries.length} wpisów`;
+  const visible = showAll ? entries : entries.slice(0,10);
+  if (!visible.length) {
+    h.innerHTML = `<div class="empty-state"><div class="icon">🍼</div>Brak wpisów. Zacznij śledzić karmienie!</div>`;
+    return;
+  }
+  h.innerHTML = visible.map(e => {
+    let tags = '';
+    if (e.type==="feed") tags = `<span class="tag tag-feed">🍼 Karmienie</span><span class="tag tag-default">${e.breast}</span><span class="tag tag-duration">⏱ ${fmtHM(e.durationMs)}</span>`;
+    if (e.type==="ml") tags = `<span class="tag tag-feed">🥛 Dokarmianie</span><span class="tag tag-ml">💛 ${e.ml} ml</span>`;
+    if (e.type==="pee") tags = `<span class="tag tag-pee">💧 Siku</span>${e.amount?`<span class="tag tag-default">${e.amount}</span>`:''}`;
+    if (e.type==="poop") tags = `<span class="tag tag-poop">💩 Kupka</span>${e.amount?`<span class="tag tag-default">${e.amount}</span>`:''}`;
+    const note = (e.note||"").trim();
+    return `<div class="history-item">
+      <div>
+        <div class="history-ts">${localStamp(e.ts)}</div>
+        <div class="history-tags">${tags}</div>
+        ${note?`<div class="history-note">"${note.replaceAll('<','&lt;').replaceAll('>','&gt;')}"</div>`:''}
+      </div>
+      <button class="btn-del" onclick="delEntry('${e.id}')">Usuń</button>
+    </div>`;
+  }).join('');
+}
+
+/* Charts */
+const pad2 = (n) => String(n).padStart(2,"0");
+function dayKey(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+function dayLabel(d){ return `${pad2(d.getDate())}.${pad2(d.getMonth()+1)}`; }
+function getLast7Days(){ const out=[]; const d=startOfToday(); for(let i=6;i>=0;i--){ const x=new Date(d); x.setDate(d.getDate()-i); out.push(x); } return out; }
+function aggregate7(entries) {
+  const days=getLast7Days(); const buckets={};
+  for(const d of days) buckets[dayKey(d)]={feedMin:0,ml:0,pee:0,poop:0,label:dayLabel(d)};
+  for(const e of entries){
+    const k=dayKey(new Date(e.ts));
+    if(!buckets[k]) continue;
+    if(e.type==="feed") buckets[k].feedMin+=Math.round((Number(e.durationMs||0))/60000);
+    if(e.type==="ml") buckets[k].ml+=Number(e.ml||0);
+    if(e.type==="pee") buckets[k].pee++;
+    if(e.type==="poop") buckets[k].poop++;
+  }
+  return days.map(d=>buckets[dayKey(d)]);
+}
+
+function drawBars(canvas, labels, values, color1, color2) {
+  const ctx = canvas.getContext("2d");
+  const dpr = Math.max(1, Math.floor(window.devicePixelRatio||1));
+  const cssW = canvas.clientWidth, cssH = canvas.clientHeight;
+  canvas.width = Math.floor(cssW*dpr); canvas.height = Math.floor(cssH*dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssW,cssH);
+
+  const pad = 14, bPad = 36;
+  const maxV = Math.max(1,...values);
+  const n = values.length;
+  const gap = 10;
+  const barW = Math.max(10, Math.floor((cssW - pad*2 - gap*(n-1)) / n));
+  const usableH = cssH - bPad - 28;
+
+  ctx.strokeStyle = "rgba(255,255,255,0.05)";
+  ctx.lineWidth = 1;
+  for (let i=1;i<=3;i++) {
+    const y = bPad + usableH - (usableH * i/4);
+    ctx.beginPath(); ctx.moveTo(pad,y); ctx.lineTo(cssW-pad,y); ctx.stroke();
+  }
+
+  for (let i=0; i<n; i++) {
+    const v = values[i];
+    const x = pad + i*(barW+gap);
+    const barH = Math.max(3, Math.round((v/maxV)*usableH));
+    const y = bPad + usableH - barH;
+
+    const grad = ctx.createLinearGradient(0, y, 0, y+barH);
+    grad.addColorStop(0, color1);
+    grad.addColorStop(1, color2);
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    const r = Math.min(8, barW/2, barH/2);
+    if (ctx.roundRect) ctx.roundRect(x,y,barW,barH,r);
+    else { ctx.moveTo(x+r,y);ctx.arcTo(x+barW,y,x+barW,y+barH,r);ctx.arcTo(x+barW,y+barH,x,y+barH,r);ctx.arcTo(x,y+barH,x,y,r);ctx.arcTo(x,y,x+barW,y,r);ctx.closePath(); }
+    ctx.fill();
+
+    ctx.fillStyle = v > 0 ? "rgba(238,238,245,0.9)" : "rgba(107,107,133,0.6)";
+    ctx.font = `600 11px 'DM Mono', monospace`;
+    const vStr = String(v);
+    const tw = ctx.measureText(vStr).width;
+    ctx.fillText(vStr, x+Math.max(0,(barW-tw)/2), Math.max(16,y-6));
+
+    ctx.fillStyle = "rgba(107,107,133,0.9)";
+    ctx.font = `500 11px 'DM Sans', sans-serif`;
+    const lw = ctx.measureText(labels[i]).width;
+    ctx.fillText(labels[i], x+Math.max(0,(barW-lw)/2), cssH-8);
+  }
+}
+
+function renderCharts() {
+  const entries = load();
+  const ag = aggregate7(entries);
+  const labels = ag.map(x=>x.label);
+  document.getElementById("chartsHint").textContent = `${labels[0]} → ${labels[labels.length-1]}`;
+  drawBars(document.getElementById("chartFeed"), labels, ag.map(x=>x.feedMin), "rgba(123,110,246,0.9)","rgba(123,110,246,0.3)");
+  drawBars(document.getElementById("chartMl"), labels, ag.map(x=>Math.round(x.ml)), "rgba(244,114,182,0.9)","rgba(244,114,182,0.3)");
+  drawBars(document.getElementById("chartDiaper"), labels, ag.map(x=>x.pee+x.poop), "rgba(74,222,128,0.9)","rgba(74,222,128,0.3)");
+}
+
+function renderAll() { renderSummaries(); renderCharts(); renderHistory(); }
+
+function startAutoRefresh() {
+  const el = document.getElementById("autoUpdate");
+  const tick = () => {
+    renderSummaries(); renderCharts();
+    const d = new Date();
+    el.textContent = d.toLocaleTimeString("pl-PL",{hour:"2-digit",minute:"2-digit"});
+  };
+  tick(); setInterval(tick, 30_000);
+}
+
+renderAll();
+startAutoRefresh();
+</script>
+</body>
+</html>
