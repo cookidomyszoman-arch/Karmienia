@@ -1,20 +1,14 @@
 {
   "name": "Antek – mniam mniam",
   "short_name": "Antek",
-  "start_url": "./",
+  "id": "/Karmienia/",
+  "start_url": "/Karmienia/",
+  "scope": "/Karmienia/",
   "display": "standalone",
   "background_color": "#0f0f10",
   "theme_color": "#111111",
   "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
+    { "src": "/Karmienia/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/Karmienia/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
