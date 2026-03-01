@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Karmienia – prywatny dziennik</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#111111" />
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; margin: 0; background:#0f0f10; color:#f2f2f2; }
+    header { padding: 14px 16px; background:#161617; position: sticky; top:0; border-bottom:1px solid #252527; }
+    h1 { font-size: 16px; margin:0; }
+    main { padding: 14px 16px 24px; max-width: 720px; margin: 0 auto; }
+    .card { background:#161617; border:1px solid #252527; border-radius: 14px; padding: 12px; margin: 12px 0; }
+    .row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    button, input, textarea, select {
+      border-radius: 12px; border:1px solid #2a2a2d; background:#101011; color:#f2f2f2;
+      padding: 10px 12px; font-size: 14px;
+    }
+    button { cursor:pointer; }
+    button.primary { background:#2b2bff; border-color:#2b2bff; }
+    button.danger { background:#ff3b30; border-color:#ff3b30; }
+    button.ghost { background:transparent; }
+    .pill { padding: 6px 10px; border-radius: 999px; border:1px solid #2a2a2d; background:#101011; }
+    .muted { color:#b9b9c0; font-size: 12px; }
+    textarea { width: 100%; min-height: 68px; resize: vertical; }
+    input[type="number"]{ width: 120px; }
+    .history-item { border-top:1px dashed #2a2a2d; padding: 10px 0; }
+    .history-item:first-child { border-top:none; }
+    .tag { display:inline-block; padding:4px 8px; border-radius:999px; border:1px solid #2a2a2d; margin-right:6px; font-size:12px; }
+    .ok { color:#8ef0a5; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>Karmienia – prywatny dziennik</h1>
+  <div class="muted">Dane tylko w tym telefonie (offline). Eksport CSV opcjonalnie.</div>
+</header>
+
+<main>
+  <div class="card">
+    <div class="row" style="justify-content:space-between;">
+      <div>
+        <div class="muted">Sesja karmienia</div>
+        <div id="timer" style="font-size:24px; font-weight:700;">00:00</div>
+        <div class="muted" id="sessionState">Nie nagrywa</div>
+      </div>
+      <div class="row">
+        <select id="breast">
+          <option value="L">Lewa (L)</option>
+          <option value="P">Prawa (P)</option>
+          <option value="L+P">Obie (L+P)</option>
+        </select>
+        <button id="startStop" class="primary">Start</button>
+      </div>
+    </div>
+
+    <div style="margin-top:10px;">
+      <div class="muted">Uwagi do wpisu (opcjonalnie)</div>
+      <textarea id="note" placeholder="np. senne, słabo ssało, odbiło się, itd."></textarea>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <button id="pee">Siku</button>
+      <button id="poop">Kupka</button>
+      <span class="pill">Dokarmianie (ml):</span>
+      <input id="ml" type="number" min="0" step="1" placeholder="ml" />
+      <button id="addMl">Dodaj</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row" style="justify-content:space-between;">
+      <div>
+        <div style="font-weight:700;">Historia</div>
+        <div class="muted" id="countInfo"></div>
+      </div>
+      <div class="row">
+        <button id="export" class="ghost">Eksport CSV</button>
+        <button id="wipe" class="danger">Wyczyść wszystko</button>
+      </div>
+    </div>
+    <div id="history"></div>
+  </div>
+
+  <div class="muted">Tip: po instalacji działa offline. Jeśli zmienisz telefon, użyj „Eksport CSV”.</div>
+</main>
+
+<script>
+  // --- storage ---
+  const KEY = "karmienia_entries_v1";
+  const load = () => {
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
+    catch { return []; }
+  };
+  const save = (arr) => localStorage.setItem(KEY, JSON.stringify(arr));
+
+  // --- helpers ---
+  const pad = (n) => String(n).padStart(2,"0");
+  const fmtTime = (ms) => {
+    const s = Math.floor(ms/1000);
+    const m = Math.floor(s/60);
+    const ss = s%60;
+    return `${pad(m)}:${pad(ss)}`;
+  };
+  const nowIso = () => new Date().toISOString();
+  const localStamp = (iso) => {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, { year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit" });
+  };
+
+  // --- state for session timer ---
+  let running = false;
+  let t0 = 0;
+  let tickId = null;
+
+  const timerEl = document.getElementById("timer");
+  const sessionStateEl = document.getElementById("sessionState");
+  const startStopBtn = document.getElementById("startStop");
+  const breastSel = document.getElementById("breast");
+  const noteEl = document.getElementById("note");
+
+  function renderHistory() {
+    const entries = load().sort((a,b)=> b.ts.localeCompare(a.ts));
+    const h = document.getElementById("history");
+    const info = document.getElementById("countInfo");
+    info.textContent = `Wpisów: ${entries.length}`;
+    if (!entries.length) { h.innerHTML = `<div class="muted" style="margin-top:10px;">Brak wpisów.</div>`; return; }
+
+    h.innerHTML = entries.map(e => {
+      const tags = [];
+      if (e.type === "feed") tags.push(`<span class="tag">Karmienie</span> <span class="tag">${e.breast}</span> <span class="tag ok">${fmtTime(e.durationMs)}</span>`);
+      if (e.type === "ml") tags.push(`<span class="tag">Dokarmianie</span> <span class="tag ok">${e.ml} ml</span>`);
+      if (e.type === "pee") tags.push(`<span class="tag">Siku</span>`);
+      if (e.type === "poop") tags.push(`<span class="tag">Kupka</span>`);
+
+      const note = (e.note || "").trim();
+      return `
+        <div class="history-item">
+          <div class="muted">${localStamp(e.ts)}</div>
+          <div style="margin:6px 0;">${tags.join(" ")}</div>
+          ${note ? `<div>${note.replaceAll("<","&lt;").replaceAll(">","&gt;")}</div>` : `<div class="muted">—</div>`}
+          <div style="margin-top:8px;">
+            <button class="ghost" onclick="delEntry('${e.id}')">Usuń</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  window.delEntry = (id) => {
+    const arr = load().filter(x => x.id !== id);
+    save(arr);
+    renderHistory();
+  };
+
+  function addEntry(entry) {
+    const arr = load();
+    arr.push(entry);
+    save(arr);
+    renderHistory();
+  }
+
+  function startTimer() {
+    running = true;
+    t0 = Date.now();
+    sessionStateEl.textContent = "Nagrywa…";
+    startStopBtn.textContent = "Stop";
+    timerEl.textContent = "00:00";
+    tickId = setInterval(() => {
+      timerEl.textContent = fmtTime(Date.now() - t0);
+    }, 250);
+  }
+
+  function stopTimerAndSave() {
+    running = false;
+    clearInterval(tickId);
+    tickId = null;
+    const dur = Date.now() - t0;
+    sessionStateEl.textContent = "Zapisano";
+    startStopBtn.textContent = "Start";
+    timerEl.textContent = "00:00";
+
+    addEntry({
+      id: crypto.randomUUID(),
+      ts: nowIso(),
+      type: "feed",
+      breast: breastSel.value,
+      durationMs: dur,
+      note: noteEl.value || ""
+    });
+
+    // czyścimy notatkę po zapisaniu karmienia (żeby nie wpadała przypadkiem do pieluch)
+    noteEl.value = "";
+  }
+
+  startStopBtn.addEventListener("click", () => {
+    if (!running) startTimer();
+    else stopTimerAndSave();
+  });
+
+  document.getElementById("pee").addEventListener("click", () => {
+    addEntry({ id: crypto.randomUUID(), ts: nowIso(), type: "pee", note: noteEl.value || "" });
+    noteEl.value = "";
+  });
+
+  document.getElementById("poop").addEventListener("click", () => {
+    addEntry({ id: crypto.randomUUID(), ts: nowIso(), type: "poop", note: noteEl.value || "" });
+    noteEl.value = "";
+  });
+
+  document.getElementById("addMl").addEventListener("click", () => {
+    const v = Number(document.getElementById("ml").value);
+    if (!Number.isFinite(v) || v <= 0) { alert("Wpisz ml (liczba > 0)."); return; }
+    addEntry({ id: crypto.randomUUID(), ts: nowIso(), type: "ml", ml: Math.round(v), note: noteEl.value || "" });
+    document.getElementById("ml").value = "";
+    noteEl.value = "";
+  });
+
+  document.getElementById("wipe").addEventListener("click", () => {
+    if (!confirm("Na pewno usunąć wszystkie wpisy z tego telefonu?")) return;
+    localStorage.removeItem(KEY);
+    renderHistory();
+  });
+
+  document.getElementById("export").addEventListener("click", () => {
+    const entries = load().sort((a,b)=> a.ts.localeCompare(b.ts));
+    const header = ["ts","type","breast","duration_sec","ml","note"].join(",");
+    const rows = entries.map(e => {
+      const durSec = e.durationMs ? Math.round(e.durationMs/1000) : "";
+      const cols = [
+        e.ts,
+        e.type || "",
+        e.breast || "",
+        durSec,
+        e.ml || "",
+        (e.note || "").replaceAll('"','""')
+      ];
+      return cols.map(c => `"${String(c)}"`).join(",");
+    });
+    const csv = [header, ...rows].join("\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "karmienia_export.csv";
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(url), 2000);
+  });
+
+  // PWA: service worker
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js").catch(()=>{});
+  }
+
+  renderHistory();
+</script>
+</body>
+</html>
