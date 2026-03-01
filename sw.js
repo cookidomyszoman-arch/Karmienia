@@ -1,4 +1,5 @@
-const CACHE = "karmienia-cache-v1";
+// sw.js (podmień na ten, żeby wymusić update cache)
+const CACHE = "karmienia-cache-v2";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js"];
 
 self.addEventListener("install", (e) => {
@@ -7,7 +8,13 @@ self.addEventListener("install", (e) => {
 });
 
 self.addEventListener("activate", (e) => {
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => (k !== CACHE ? caches.delete(k) : null)));
+      await self.clients.claim();
+    })()
+  );
 });
 
 self.addEventListener("fetch", (e) => {
