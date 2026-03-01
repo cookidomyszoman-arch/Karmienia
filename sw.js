@@ -1,5 +1,5 @@
 // sw.js (podmień na ten, żeby wymusić update cache)
-const CACHE = "karmienia-cache-v4";
+const CACHE = "karmienia-cache-v5";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js"];
 
 self.addEventListener("install", (e) => {
